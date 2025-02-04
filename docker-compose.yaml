@@ -2,9 +2,6 @@ services:
   app:
     image: xoderockson/xode-blockchain-api:latest
     container_name: xode-blockchain-api
-    env_file:
-      - .env
     ports:
       - 3017:3001
-    volumes:
-      - /var/www/xode/xode-blockchain-api/.env:/usr/src/app/.env
+
