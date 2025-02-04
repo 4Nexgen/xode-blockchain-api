@@ -3,5 +3,5 @@ services:
     image: xoderockson/xode-blockchain-api:latest
     container_name: xode-blockchain-api
     ports:
-      - 3017:3001
+      - 3017:3000
 
