@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateWalletDto } from './dto/create-wallet.dto';
-import axios from 'axios';
 
 @Injectable()
 export class ApiService {
@@ -181,18 +180,28 @@ export class ApiService {
         operationName: 'MyQuery',
       };
 
-      const response = await axios.post(
-        'https://subsquid.xode.net/graphql',
-        query,
-        {
-          headers: { 'Content-Type': 'application/json' },
-        },
-      );
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds
 
-      return response.data.data;
+      const response = await fetch('https://subsquid.xode.net/graphql', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(query),
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeout));
+
+      if (!response.ok) {
+        throw new Error(
+          `GraphQL request failed with status ${response.status}`,
+        );
+      }
+
+      const result = await response.json();
+      return result.data;
     } catch (error) {
+      console.log(error);
       throw new Error(
-        `Failed to fetch transaction hash details: ${error.response?.data?.message || error.message}`,
+        `Failed to fetch transaction hash details: ${error.message}`,
       );
     }
   }
