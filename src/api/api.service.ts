@@ -180,11 +180,16 @@ export class ApiService {
         operationName: 'MyQuery',
       };
 
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000); // 10 seconds
+
       const response = await fetch('https://subsquid.xode.net/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(query),
-      });
+
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timeout));
 
       if (!response.ok) {
         throw new Error(
@@ -195,6 +200,7 @@ export class ApiService {
       const result = await response.json();
       return result.data;
     } catch (error) {
+      console.log(error);
       throw new Error(
         `Failed to fetch transaction hash details: ${error.message}`,
       );
